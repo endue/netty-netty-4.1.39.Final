@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Abstract base class for {@link EventExecutor}s that want to support scheduling.
+ *
+ * 抽象调度事件执行器
  */
 public abstract class AbstractScheduledEventExecutor extends AbstractEventExecutor {
 
@@ -38,6 +40,9 @@ public abstract class AbstractScheduledEventExecutor extends AbstractEventExecut
                 }
             };
 
+    /**
+     * 延迟任务队列，初始化为DefaultPriorityQueue
+     */
     PriorityQueue<ScheduledFutureTask<?>> scheduledTaskQueue;
 
     protected AbstractScheduledEventExecutor() {

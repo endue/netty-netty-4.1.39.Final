@@ -46,6 +46,8 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 /**
  * Abstract base class for {@link OrderedEventExecutor}'s that execute all its submitted tasks in a single thread.
  *
+ * 单线程事件执行器
+ *
  */
 public abstract class SingleThreadEventExecutor extends AbstractScheduledEventExecutor implements OrderedEventExecutor {
 
@@ -80,8 +82,14 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
             AtomicReferenceFieldUpdater.newUpdater(
                     SingleThreadEventExecutor.class, ThreadProperties.class, "threadProperties");
 
+    /**
+     * 任务队列
+     */
     private final Queue<Runnable> taskQueue;
 
+    /**
+     * 当前事件执行器的执行线程
+     */
     private volatile Thread thread;
     @SuppressWarnings("unused")
     private volatile ThreadProperties threadProperties;
