@@ -101,6 +101,8 @@ import java.util.Iterator;
  * where it is more convenient to call {@link #await()}. In such a case, please
  * make sure you do not call {@link #await()} in an I/O thread.  Otherwise,
  * {@link IllegalStateException} will be raised to prevent a dead lock.
+ *
+ * 将ChannelGroup和Future绑定在一起
  */
 public interface ChannelGroupFuture extends Future<Void>, Iterable<ChannelFuture> {
 

@@ -25,6 +25,10 @@ import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * 延迟任务，可以基于任务开始时间的固定速率延迟也可以基于任务的结束时间固定速率延迟
+ * @param <V>
+ */
 @SuppressWarnings("ComparableImplementedButEqualsNotOverridden")
 final class ScheduledFutureTask<V> extends PromiseTask<V> implements ScheduledFuture<V>, PriorityQueueNode {
     private static final AtomicLong nextTaskId = new AtomicLong();
@@ -34,15 +38,23 @@ final class ScheduledFutureTask<V> extends PromiseTask<V> implements ScheduledFu
         return System.nanoTime() - START_TIME;
     }
 
+    /**
+     * 给定延迟时间，返回执行时间
+     * @param delay
+     * @return
+     */
     static long deadlineNanos(long delay) {
         long deadlineNanos = nanoTime() + delay;
         // Guard against overflow
         return deadlineNanos < 0 ? Long.MAX_VALUE : deadlineNanos;
     }
 
+    // 任务数
     private final long id = nextTaskId.getAndIncrement();
+    // 任务执行时间 纳秒的时间戳
     private long deadlineNanos;
     /* 0 - no repeat, >0 - repeat at fixed rate, <0 - repeat with fixed delay */
+    // 任务执行周期
     private final long periodNanos;
 
     private int queueIndex = INDEX_NOT_IN_QUEUE;
@@ -133,9 +145,20 @@ final class ScheduledFutureTask<V> extends PromiseTask<V> implements ScheduledFu
                     task.call();
                     if (!executor().isShutdown()) {
                         long p = periodNanos;
+                        // 这里比较有意思
                         if (p > 0) {
+                            // 假设deadlineNanos为15:00:00，periodNanos为5s，task执行时间为15:00:00
+                            // 1.task在15:00:01执行完，那么下次执行时间为15:00:05(deadlineNanos += p)
+                            // 2.task在15:00:06执行完，那么下次执行时间为15:00:10(deadlineNanos += p)
+                            // 2.task在15:00:16执行完，那么下次执行时间为15:00:15(deadlineNanos += p) 也就是当任务执行时间超过了延迟时间，那么任务结束后立即执行下一次
+                            // 以当前任务的开始时间计算下次的执行时间
                             deadlineNanos += p;
                         } else {
+                            // 假设deadlineNanos为15:00:00，periodNanos为-5s，task执行时间为15:00:00
+                            // 1.task在15:00:01执行完，那么下次执行时间为15:00:06
+                            // 2.task在15:00:07执行完，那么下次执行时间为15:00:12
+                            // 2.task在15:00:16执行完，那么下次执行时间为15:00:21
+                            // 以当前任务执行的结束时间计算下次的执行时间
                             deadlineNanos = nanoTime() - p;
                         }
                         if (!isCancelled()) {

@@ -17,6 +17,7 @@ package io.netty.util.concurrent;
 
 /**
  * Special {@link Future} which is writable.
+ * 相比Netty Future，可以主动设置异步操作结果。如注释所示那样特殊可写的Future
  */
 public interface Promise<V> extends Future<V> {
 

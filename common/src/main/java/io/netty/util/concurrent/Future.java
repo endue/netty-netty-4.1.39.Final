@@ -21,6 +21,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * The result of an asynchronous operation.
+ * JDK自带Future提供获取结果的方式一种是等待，一种是带有超时时间的等待，都是阻塞的方式获取异步结果。从而也就带来一个问题就是线程不能去干别的只能干等
+ * Netty Future增加了一种异步通知的方式，当异步操作完成，直接将结果传递给相关线程
+ *
  */
 @SuppressWarnings("ClassNameSameAsAncestorName")
 public interface Future<V> extends java.util.concurrent.Future<V> {
