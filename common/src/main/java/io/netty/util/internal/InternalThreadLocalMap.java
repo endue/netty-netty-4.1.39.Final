@@ -44,6 +44,9 @@ public final class InternalThreadLocalMap extends UnpaddedInternalThreadLocalMap
     private static final int STRING_BUILDER_INITIAL_SIZE;
     private static final int STRING_BUILDER_MAX_SIZE;
 
+    /**
+     * 标识数组槽位,表示还未使用
+     */
     public static final Object UNSET = new Object();
 
     private BitSet cleanerFlags;
@@ -122,10 +125,17 @@ public final class InternalThreadLocalMap extends UnpaddedInternalThreadLocalMap
     // With CompressedOops enabled, an instance of this class should occupy at least 128 bytes.
     public long rp1, rp2, rp3, rp4, rp5, rp6, rp7, rp8, rp9;
 
+    /**
+     * 唯一构造方法，所有线程的InternalThreadLocalMap都基于此创建
+     */
     private InternalThreadLocalMap() {
         super(newIndexedVariableTable());
     }
 
+    /**
+     * 初始化父类变量indexedVariables
+     * @return
+     */
     private static Object[] newIndexedVariableTable() {
         Object[] array = new Object[32];
         Arrays.fill(array, UNSET);
@@ -291,14 +301,17 @@ public final class InternalThreadLocalMap extends UnpaddedInternalThreadLocalMap
 
     /**
      * @return {@code true} if and only if a new thread-local variable has been created
+     * 设置value到指定下标位置
      */
     public boolean setIndexedVariable(int index, Object value) {
         Object[] lookup = indexedVariables;
+        // index小于数组长度则直接设置
         if (index < lookup.length) {
             Object oldValue = lookup[index];
             lookup[index] = value;
             return oldValue == UNSET;
         } else {
+            // 元素
             expandIndexedVariableTableAndSet(index, value);
             return true;
         }

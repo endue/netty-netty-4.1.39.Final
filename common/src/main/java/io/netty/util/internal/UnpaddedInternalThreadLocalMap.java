@@ -36,6 +36,9 @@ class UnpaddedInternalThreadLocalMap {
     static final AtomicInteger nextIndex = new AtomicInteger();
 
     /** Used by {@link FastThreadLocal} */
+    /**
+     * FastThreadLocal底层基于该数组存储数据
+     */
     Object[] indexedVariables;
 
     // Core thread-locals

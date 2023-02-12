@@ -43,6 +43,9 @@ import java.util.Set;
  */
 public class FastThreadLocal<V> {
 
+    /**
+     * 该值永远为0
+     */
     private static final int variablesToRemoveIndex = InternalThreadLocalMap.nextVariableIndex();
 
     /**
@@ -94,20 +97,32 @@ public class FastThreadLocal<V> {
         InternalThreadLocalMap.destroy();
     }
 
+    /**
+     * 添加一个FastThreadLocal到FastThreadLocalThread的InternalThreadLocalMap中
+     * @param threadLocalMap
+     * @param variable
+     */
     @SuppressWarnings("unchecked")
     private static void addToVariablesToRemove(InternalThreadLocalMap threadLocalMap, FastThreadLocal<?> variable) {
+        // 获取下标0的变量
         Object v = threadLocalMap.indexedVariable(variablesToRemoveIndex);
         Set<FastThreadLocal<?>> variablesToRemove;
+        // 当下标0位置没值或者未初始化时,则将其设置为Set<FastThreadLocal<?>>
         if (v == InternalThreadLocalMap.UNSET || v == null) {
             variablesToRemove = Collections.newSetFromMap(new IdentityHashMap<FastThreadLocal<?>, Boolean>());
             threadLocalMap.setIndexedVariable(variablesToRemoveIndex, variablesToRemove);
         } else {
             variablesToRemove = (Set<FastThreadLocal<?>>) v;
         }
-
+        // variablesToRemove是一个set，保存了这个FastThreadLocalThread到的所有的FastThreadLocal
         variablesToRemove.add(variable);
     }
 
+    /**
+     * 删除一个FastThreadLocal
+     * @param threadLocalMap
+     * @param variable
+     */
     private static void removeFromVariablesToRemove(
             InternalThreadLocalMap threadLocalMap, FastThreadLocal<?> variable) {
 
@@ -122,6 +137,9 @@ public class FastThreadLocal<V> {
         variablesToRemove.remove(variable);
     }
 
+    /**
+     * InternalThreadLocalMap底层基于数组实现，该值表示当前FastThreadLocal在线程InternalThreadLocalMap中值的位置
+     */
     private final int index;
 
     public FastThreadLocal() {
