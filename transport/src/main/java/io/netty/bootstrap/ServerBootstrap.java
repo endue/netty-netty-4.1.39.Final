@@ -158,6 +158,14 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
             currentChildAttrs = childAttrs.entrySet().toArray(newAttrArray(0));
         }
 
+        // channel在创建时会初始化类型为DefaultChannelPipeline的pipeline。此时结构如下：
+        //      <-
+        // head    tail
+        //      ->
+        // 如下代码是添加一个ChannelHandler到pipeline中(假设起名为：ChannelInitializerHanelder)。此时结构如下：
+        //      <-                                  <-
+        // head      ChannelInitializerHanelder           tail
+        //      ->                                  ->
         p.addLast(new ChannelInitializer<Channel>() {
             @Override
             public void initChannel(final Channel ch) throws Exception {

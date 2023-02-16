@@ -30,10 +30,25 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class MultithreadEventExecutorGroup extends AbstractEventExecutorGroup {
 
+    /**
+     * 事件执行器数组
+     */
     private final EventExecutor[] children;
+    /**
+     * Collections.unmodifiableSet(children)
+     */
     private final Set<EventExecutor> readonlyChildren;
+    /**
+     *
+     */
     private final AtomicInteger terminatedChildren = new AtomicInteger();
+    /**
+     *
+     */
     private final Promise<?> terminationFuture = new DefaultPromise(GlobalEventExecutor.INSTANCE);
+    /**
+     * 在children中获取EventExecutor的选择器
+     */
     private final EventExecutorChooserFactory.EventExecutorChooser chooser;
 
     /**

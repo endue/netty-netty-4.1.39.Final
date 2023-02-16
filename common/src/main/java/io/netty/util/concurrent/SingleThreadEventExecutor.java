@@ -104,6 +104,9 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
 
     private long lastExecutionTime;
 
+    /**
+     * 记录thread的状态
+     */
     @SuppressWarnings({ "FieldMayBeFinal", "unused" })
     private volatile int state = ST_NOT_STARTED;
 
@@ -764,6 +767,10 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
         return isTerminated();
     }
 
+    /**
+     * 添加任务到队列
+     * @param task
+     */
     @Override
     public void execute(Runnable task) {
         if (task == null) {
@@ -772,6 +779,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
 
         boolean inEventLoop = inEventLoop();
         addTask(task);
+        // 如果添加任务的线程和当前thread属性不一致，则启动thread
         if (!inEventLoop) {
             startThread();
             if (isShutdown()) {

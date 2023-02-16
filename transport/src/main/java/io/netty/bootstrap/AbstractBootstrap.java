@@ -267,6 +267,11 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
         return doBind(ObjectUtil.checkNotNull(localAddress, "localAddress"));
     }
 
+    /**
+     * 真正执行bind操作
+     * @param localAddress
+     * @return
+     */
     private ChannelFuture doBind(final SocketAddress localAddress) {
         final ChannelFuture regFuture = initAndRegister();
         final Channel channel = regFuture.channel();
@@ -303,10 +308,17 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
         }
     }
 
+    /**
+     * 初始化并注册Channel
+     * @return
+     */
     final ChannelFuture initAndRegister() {
         Channel channel = null;
+        // 初始化
         try {
+            // 1.创建channel
             channel = channelFactory.newChannel();
+            // 2.对于channel进行初始化
             init(channel);
         } catch (Throwable t) {
             if (channel != null) {
@@ -319,6 +331,8 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
             return new DefaultChannelPromise(new FailedChannel(), GlobalEventExecutor.INSTANCE).setFailure(t);
         }
 
+        // 注册
+        // 1. 获取当前Bootstrap的EventLoopGroup，然后将channel注册进去
         ChannelFuture regFuture = config().group().register(channel);
         if (regFuture.cause() != null) {
             if (channel.isRegistered()) {
